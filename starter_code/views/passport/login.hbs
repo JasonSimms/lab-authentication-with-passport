@@ -1,9 +1,28 @@
 <div class="container">
     <div class="card">
-        <form action="/login" method="post">
-            <input type="email" placeholder="Email">
-            <input type="string" placeholder='Passw0rd'>
+        Log in if you dare....
+        {{!-- <form action="/login" method="post">
+            <input type="username" name="username" placeholder="Username">
+            <input type="password" name="password" placeholder='Passw0rd'>
             <button action='submit'>Login</button></form>
-
+ {{#if message}}
+    <div class="error-message">{{ message }}</div>
+  {{/if}} --}}
+<form action="/login" class="post">
+  <div>
+    <label for="username">Username:</label>
+    <input type="text" name="username">
+  </div>
+  <div>
+    <label for="password">Password:</label>
+    <input type="password" name="password">
+  </div>
+  {{#if message}}
+    <div class="error-message">{{ message }}</div>
+  {{/if}}
+  <div>
+    <input type="submit" value="Log In">
+  </div>
+  </form>
     </div>
 </div>

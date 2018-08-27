@@ -13,7 +13,7 @@ const bcrypt = require("bcrypt");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const flash= require('connect-flash')
-
+const User = require("./models/user")
 
 mongoose.Promise = Promise;
 mongoose
@@ -39,8 +39,52 @@ app.use(cookieParser());
 app.use(session({
   secret: "our-passport-local-strategy-app",
   resave: true,
-  saveUninitialized: true
+  saveUninitialized: true,
+  passReqToCallback: true,
 }));
+//START UTIL FILE
+passport.serializeUser((user, cb) => {
+  cb(null, user._id)
+})
+
+passport.deserializeUser((id, cb) => {
+  User.findById(id, (err, user) => {
+      if (err) {
+          return cb(err)
+      }
+      const cleanUserObject = user.toObject()
+
+      delete cleanUserObject.password
+
+      cb(null, cleanUserObject)
+  })
+})
+app.use(flash())
+passport.use(
+  new LocalStrategy(
+      {
+          usernameField: 'username',
+          passwordField: 'password',
+      },
+      (email, password, next) => {
+          User.findOne({ email }, (err, user) => {
+              if (err) {
+                  return next(err)
+              }
+              if (!user) {
+                  return next(null, false, { message: 'Incorrect username' })
+              }
+              if (!bcrypt.compareSync(password, user.password)) {
+                  return next(null, false, { message: 'Incorrect password' })
+              }
+
+              return next(null, user)
+          })
+      }
+  )
+)
+// END UTIL FILE
+// require('./utils/passport')
 
 app.use(passport.initialize());
 app.use(passport.session());

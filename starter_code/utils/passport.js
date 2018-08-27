@@ -2,6 +2,7 @@ const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
+const config = require('../config')
 
 passport.serializeUser((user, cb) => {
     cb(null, user._id)
@@ -23,7 +24,7 @@ passport.deserializeUser((id, cb) => {
 passport.use(
     new LocalStrategy(
         {
-            usernameField: 'email',
+            usernameField: 'username',
             passwordField: 'password',
         },
         (email, password, next) => {
@@ -43,3 +44,5 @@ passport.use(
         }
     )
 )
+
+module.exports = router

@@ -1,8 +1,9 @@
 <div class="container">
     <div class="card">
+        <h4>Dont you want to sign up?</h4>
         <form action="/signup" method="post">
-            <input type="email" placeholder="Email" required='true'>
-            <input type="string" placeholder='Passw0rd' required='true'>
+            <input type="username" name="username" placeholder="UserName" required='true'>
+            <input type="password" name="password" placeholder='Passw0rd' required='true'>
             <button type='submit'>CREATE THIS USER</button></form>
         <br>
         <br> {{#if error}}
