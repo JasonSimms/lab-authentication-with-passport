@@ -8,7 +8,7 @@
  {{#if message}}
     <div class="error-message">{{ message }}</div>
   {{/if}} --}}
-<form action="/login" class="post">
+<form action="/login" method="POST">
   <div>
     <label for="username">Username:</label>
     <input type="text" name="username">
@@ -17,12 +17,11 @@
     <label for="password">Password:</label>
     <input type="password" name="password">
   </div>
-  {{#if message}}
-    <div class="error-message">{{ message }}</div>
-  {{/if}}
   <div>
     <input type="submit" value="Log In">
+    {{#if error}}
+      <p>ERROR: {{error}}</p>
+      {{/if}}
   </div>
-  </form>
-    </div>
+</form>
 </div>

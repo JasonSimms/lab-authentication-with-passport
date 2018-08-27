@@ -1,94 +1,55 @@
-const express        = require("express");
-const passportRouter = express.Router();
+const express = require("express");
+const router = express.Router();
 // User model
-const User           = require("../models/user");
+const User = require("../models/User");
 // Bcrypt to encrypt passwords
-const bcrypt         = require("bcrypt");
-const bcryptSalt     = 10;
+const bcrypt = require("bcrypt");
+const bcryptSalt = 10;
 const ensureLogin = require("connect-ensure-login");
-const passport      = require("passport");
+const passport = require("passport");
 const flash = require('connect-flash')
 
 
 
-// router.get("/private-page", ensureLogin.ensureLoggedIn(), (req, res) => {
-//   res.render("passport/private", { user: req.user });
-// });
+router.get("/private-page", ensureLogin.ensureLoggedIn(), (req, res) => {
+  res.render("passport/private", { user: req.user });
+});
 
-passportRouter.get('/signup', (req, res, next) => {
-  res.render('passport/signup')
+router.get("/signup", (req, res, next) => {
+  res.render("passport/signup")
 })
 
-passportRouter.post("/signup", (req, res, next) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  if (username === "" || password === "") {
-    res.render("passport/signup", {
-      errorMessage: "Indicate a username and a password to sign up"
-    });
-    return;
-  }
-  User.findOne({ "username": username },
-    "username",
-    (err, user) => {
-      if (user !== null) {
-        res.render("passport/signup", {
-          errorMessage: "The username already exists"
-        });
-        return;
+router.post('/signup', (req, res, next) => {
+  const { username, password } = req.body
+  const encrypted = bcrypt.hashSync(password, 10)
+  new User({ username, password: encrypted })
+    .save()
+    .then(result => {
+      console.log(req.body);
+      res.redirect('/')
+      // res.send('User account was created')
+    })
+    .catch(err => {
+      if (err.code === 11000) {
+        return res.render('passport/signup', { error: 'user exists already' })
       }
-      const salt = bcrypt.genSaltSync(bcryptSalt);
-      const hashPass = bcrypt.hashSync(password, salt);
-
-      const newUser = User({
-        username,
-        password: hashPass
-      });
-      newUser.save()
-        .then(user => {
-          res.redirect("/");
-        })
-        .catch(err => {
-          res.render("auth/signup", {
-            errorMessage: "Something went wrong"
-          });
-        });
-    });
+      console.error(err)
+      res.send('something went wrong')
+    })
+})
+router.get("/login", (req, res, next) => {
+  res.render("passport/login", { error: req.flash('error') });
 });
 
-/*LOGIN FUNCTION */
-passportRouter.get("/login", (req, res, next) => {
-  res.render("passport/login", { "message": req.flash("error") });
-});
-
-passportRouter.post("/login", passport.authenticate("local", {
-  successRedirect: "/private-page",
+router.post("/login", passport.authenticate("local", {
+  successRedirect: "/",
   failureRedirect: "/login",
   failureFlash: true,
   passReqToCallback: true
 }));
 
-passportRouter.get("/private-page", 
-// ensureLogin.ensureLoggedIn(), 
-(req, res) => {
-  // res.send('Logged in')
-  res.render("passport/private", { username: req.user });
-});
-
-//LOGOUT
-passportRouter.get('/signout', (req, res) => {
+router.get('/signout', (req, res) => {
   req.logout()
   res.send("Logged Out!")
-  // res.redirect('/')
 })
-
-/*The repo you cloned comes with a User model and a router file already made for you. It also has all the views you need there, although some are empty.
-
-Add a new route to your passportRouter.js file with the path /signup and point it to your views/passport/signup.hbs file.
-
-Now, in that file, add a form that makes a POST request to /signup, with a field for email and password.
-
-Finally, add a post route to your passportRoute to receive the data from the signup form and create a new user with the data.
-
-*/
-module.exports = passportRouter;
+module.exports = router;
