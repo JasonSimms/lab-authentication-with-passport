@@ -1,5 +1,5 @@
 const express        = require("express");
-const router         = express.Router();
+const passportRouter = express.Router();
 // User model
 const User           = require("../models/user");
 // Bcrypt to encrypt passwords
@@ -11,15 +11,15 @@ const flash = require('connect-flash')
 
 
 
-router.get("/private-page", ensureLogin.ensureLoggedIn(), (req, res) => {
-  res.render("passport/private", { user: req.user });
-});
+// router.get("/private-page", ensureLogin.ensureLoggedIn(), (req, res) => {
+//   res.render("passport/private", { user: req.user });
+// });
 
-router.get('/signup', (req, res, next) => {
+passportRouter.get('/signup', (req, res, next) => {
   res.render('passport/signup')
 })
 
-router.post("/signup", (req, res, next) => {
+passportRouter.post("/signup", (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   if (username === "" || password === "") {
@@ -49,7 +49,7 @@ router.post("/signup", (req, res, next) => {
           res.redirect("/");
         })
         .catch(err => {
-          res.render("passport/signup", {
+          res.render("auth/signup", {
             errorMessage: "Something went wrong"
           });
         });
@@ -57,19 +57,26 @@ router.post("/signup", (req, res, next) => {
 });
 
 /*LOGIN FUNCTION */
-router.get("/login", (req, res, next) => {
+passportRouter.get("/login", (req, res, next) => {
   res.render("passport/login", { "message": req.flash("error") });
 });
 
-router.post("/login", passport.authenticate("local", {
+passportRouter.post("/login", passport.authenticate("local", {
   successRedirect: "/private-page",
   failureRedirect: "/login",
   failureFlash: true,
   passReqToCallback: true
 }));
 
+passportRouter.get("/private-page", 
+// ensureLogin.ensureLoggedIn(), 
+(req, res) => {
+  // res.send('Logged in')
+  res.render("passport/private", { username: req.user });
+});
+
 //LOGOUT
-router.get('/signout', (req, res) => {
+passportRouter.get('/signout', (req, res) => {
   req.logout()
   res.send("Logged Out!")
   // res.redirect('/')
@@ -84,4 +91,4 @@ Now, in that file, add a form that makes a POST request to /signup, with a field
 Finally, add a post route to your passportRoute to receive the data from the signup form and create a new user with the data.
 
 */
-module.exports = router;
+module.exports = passportRouter;
