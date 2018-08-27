@@ -1,0 +1,12 @@
+<div class="container">
+    <div class="card">
+        <form action="/signup" method="post">
+            <input type="email" placeholder="Email" required='true'>
+            <input type="string" placeholder='Passw0rd' required='true'>
+            <button type='submit'>CREATE THIS USER</button></form>
+        <br>
+        <br> {{#if error}}
+        <p>ERROR: {{error}}</p>
+        {{/if}}
+    </div>
+</div>
